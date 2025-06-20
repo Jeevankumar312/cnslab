@@ -1,0 +1,66 @@
+import java.util.Scanner;
+public class CRCCCITT {
+    public static String xorDivision(String dividend, String divisor){
+        char[] rem = dividend.toCharArray();
+        char[] div = divisor.toCharArray();
+        int n = div.length;
+
+        for (int i = 0; i <= rem.length - n ; i++) {
+            if(rem[i] == '1'){
+                for (int j = 0; j < n; j++) {
+                    rem[i+j] = (rem[i+j] == div[j])?'0':'1';
+                }
+            }
+        }
+        return new String(rem).substring(rem.length-n+1);
+    }
+
+    public static void main(String[] args) {
+        Scanner s = new Scanner(System.in);
+
+        System.out.println("Enter the data:");
+        String data = s.nextLine();
+
+        System.out.println("Enter the polynomial:");
+        String poly = s.nextLine();
+        int m = poly.length()-1;
+
+        String paddedData = data + "0".repeat(m);
+
+        String remainder = xorDivision(paddedData, poly);
+
+        String codeWord = data+remainder;
+
+        System.out.println("Codeword is:" + codeWord);
+        System.out.println("CheckSum is: " + remainder);
+
+        System.out.println("Enter your option to simulate error:Y(0) | N(1)");
+        int test = s.nextInt();
+
+        String recievedData = codeWord;
+
+        if(test == 0){
+            System.out.println("Enter the position to flip the bit:");
+            int pos = s.nextInt();
+
+            char[] errorData = codeWord.toCharArray();
+            if(pos>=0 && pos< errorData.length){
+                errorData[pos-1] = (errorData[pos-1]=='1')?'0':'1';
+                recievedData = new String(errorData);
+            }else{
+                System.out.println("Invalid Position to toggle");
+            }
+        }
+
+        System.out.println(recievedData);
+
+        String checkRem = xorDivision(recievedData, poly);
+        if(checkRem.contains("1")){
+            System.out.println("Message contains Error");
+            return;
+        }else{
+            System.out.println("Message is error free.");
+            return;
+        }
+    }
+}
