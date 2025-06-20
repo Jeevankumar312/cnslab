@@ -1,0 +1,80 @@
+import java.util.*;
+
+public class PlayfairCipher {
+
+    static char[][] matrix = new char[5][5];
+    static Map<Character, int[]> pos = new HashMap<>();
+
+    public static void generateMatrix(String key) {
+        key = key.toUpperCase().replaceAll("[^A-Z]", "").replace("J", "I");
+        key += "ABCDEFGHIKLMNOPQRSTUVWXYZ";
+        Set<Character> used = new HashSet<>();
+        int row = 0, col = 0;
+
+        for (char ch : key.toCharArray()) {
+            if (used.contains(ch)) continue;
+            used.add(ch);
+            matrix[row][col] = ch;
+            pos.put(ch, new int[]{row, col});
+            col++;
+            if (col == 5) {
+                col = 0;
+                row++;
+            }
+        }
+    }
+
+    public static String processText(String text, boolean encrypt) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < text.length(); i += 2) {
+            char a = text.charAt(i);
+            char b = (i + 1 < text.length() && text.charAt(i + 1) != a) ? text.charAt(i + 1) : 'Z';
+
+            int[] posA = pos.get(a);
+            int[] posB = pos.get(b);
+
+            if (posA[0] == posB[0]) {
+                result.append(matrix[posA[0]][(posA[1] + (encrypt ? 1 : 4)) % 5]);
+                result.append(matrix[posB[0]][(posB[1] + (encrypt ? 1 : 4)) % 5]);
+            } else if (posA[1] == posB[1]) {
+                result.append(matrix[(posA[0] + (encrypt ? 1 : 4)) % 5][posA[1]]);
+                result.append(matrix[(posB[0] + (encrypt ? 1 : 4)) % 5][posB[1]]);
+            } else {
+                result.append(matrix[posA[0]][posB[1]]);
+                result.append(matrix[posB[0]][posA[1]]);
+            }
+        }
+        return result.toString();
+    }
+
+    public static String encrypt(String plaintext) {
+        StringBuilder filtered = new StringBuilder();
+        for (char ch : plaintext.toUpperCase().toCharArray()) {
+            if (Character.isLetter(ch)) {
+                filtered.append(ch == 'J' ? 'I' : ch);
+            }
+        }
+        return processText(filtered.toString(), true);
+    }
+
+    public static String decrypt(String ciphertext) {
+        return processText(ciphertext, false);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the key (can contain spaces): ");
+        String key = scanner.nextLine();
+
+        System.out.print("Enter the plaintext (can contain spaces): ");
+        String plaintext = scanner.nextLine();
+
+        generateMatrix(key);
+        String encrypted = encrypt(plaintext);
+        String decrypted = decrypt(encrypted);
+
+        System.out.println("Encrypted Text: " + encrypted);
+        System.out.println("Decrypted Text: " + decrypted);
+    }
+}

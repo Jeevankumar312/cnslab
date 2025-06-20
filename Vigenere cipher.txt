@@ -1,0 +1,68 @@
+import java.util.Scanner;
+
+public class VigenereCipher {
+
+    public static String generateKey(String text, String key) {
+        StringBuilder newKey = new StringBuilder();
+        int keyIndex = 0;
+        for (char ch : text.toCharArray()) {
+            if (Character.isLetter(ch)) {
+                newKey.append(Character.toUpperCase(key.charAt(keyIndex % key.length())));
+                keyIndex++;
+            }
+        }
+        return newKey.toString();
+    }
+
+    public static String vigenereEncrypt(String text, String key) {
+        StringBuilder cipherText = new StringBuilder();
+        String newKey = generateKey(text, key);
+        int keyIndex = 0;
+
+        for (char ch : text.toCharArray()) {
+            if (Character.isLetter(ch)) {
+                char base = Character.isUpperCase(ch) ? 'A' : 'a';
+                char encryptedChar = (char) (((Character.toUpperCase(ch) - 'A' + (newKey.charAt(keyIndex) - 'A')) % 26) + base);
+                cipherText.append(encryptedChar);
+                keyIndex++;
+            } else {
+                cipherText.append(ch);
+            }
+        }
+        return cipherText.toString();
+    }
+
+    public static String vigenereDecrypt(String cipherText, String key) {
+        StringBuilder plainText = new StringBuilder();
+        String newKey = generateKey(cipherText, key);
+        int keyIndex = 0;
+
+        for (char ch : cipherText.toCharArray()) {
+            if (Character.isLetter(ch)) {
+                char base = Character.isUpperCase(ch) ? 'A' : 'a';
+                char decryptedChar = (char) (((Character.toUpperCase(ch) - 'A' - (newKey.charAt(keyIndex) - 'A') + 26) % 26) + base);
+                plainText.append(decryptedChar);
+                keyIndex++;
+            } else {
+                plainText.append(ch);
+            }
+        }
+        return plainText.toString();
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the text: ");
+        String text = scanner.nextLine();
+        System.out.print("Enter the key: ");
+        String key = scanner.next();
+
+        String encrypted = vigenereEncrypt(text, key);
+        System.out.println("Encrypted Text: " + encrypted);
+
+        String decrypted = vigenereDecrypt(encrypted, key);
+        System.out.println("Decrypted Text: " + decrypted);
+
+        scanner.close();
+    }
+}
