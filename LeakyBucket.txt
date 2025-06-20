@@ -1,0 +1,89 @@
+import java.util.*;
+
+public class LeakyBucket {
+
+    private int capacity;  // Maximum capacity of the bucket
+    private int rate;      // Leak rate (how much data leaks per unit of time)
+    private Queue<Integer> bucket;  // Queue to represent the bucket (data in the bucket)
+
+    public LeakyBucket(int capacity, int rate) {
+        this.capacity = capacity;
+        this.rate = rate;
+        this.bucket = new LinkedList<>();
+    }
+
+    // Method to add data to the bucket
+    public boolean addData(int data) {
+        if (bucket.size() + data <= capacity) {
+            // Add the data to the bucket
+            for (int i = 0; i < data; i++) {
+                bucket.add(1);  // Add 1 unit of data at a time
+            }
+            System.out.println(data + " units of data added to the bucket.");
+            return true;
+        } else {
+            System.out.println("Bucket overflow! Cannot add " + data + " units of data.");
+            return false;
+        }
+    }
+
+    // Method to simulate the leak, which leaks at a constant rate
+    public void leakData() {
+        // Leak the data at the constant rate
+        int leakAmount = Math.min(rate, bucket.size());
+        for (int i = 0; i < leakAmount; i++) {
+            bucket.poll();  // Remove data from the bucket
+        } 
+        System.out.println("Leaked " + leakAmount + " units of data.");
+    }
+
+    // Method to get the current data in the bucket
+    public int getDataInBucket() {
+        return bucket.size();
+    }
+
+    // Method to simulate the Leaky Bucket over time
+    public void startSimulation() {
+        while (true) {
+            // Simulate incoming data (random number between 1 and 5 units)
+            int incomingData = (int) (Math.random() * 5) + 1;
+            System.out.println("Incoming data: " + incomingData);
+
+            // Add incoming data to the bucket
+            addData(incomingData);
+
+            // Simulate the leak
+            leakData();
+
+            // Show the current state of the bucket
+            System.out.println("Current data in bucket: " + getDataInBucket() + " units\n");
+
+            // Sleep for a second to simulate time passing
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        // Define the capacity of the bucket and the leak rate
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter bucket capacity: ");
+        int capacity = sc.nextInt();
+        sc.nextLine();
+        System.out.print("Enter leak rate: ");
+        int leakRate = sc.nextInt();
+        sc.nextLine();
+
+        // Create an instance of the LeakyBucket
+        LeakyBucket leakyBucket = new LeakyBucket(capacity, leakRate);
+
+        System.out.println("Starting Leaky Bucket Simulation...\n");
+
+        // Start the simulation
+        leakyBucket.startSimulation();
+    }
+}
