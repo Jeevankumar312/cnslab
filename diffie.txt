@@ -1,0 +1,86 @@
+import java.util.Scanner;
+
+public class DiffieHellman {
+
+    // Function to check if a number is prime
+    static boolean isPrime(int n) {
+        if (n <= 1)
+            return false;
+        for (int i = 2; i <= Math.sqrt(n); i++)
+            if (n % i == 0)
+                return false;
+        return true;
+    }
+
+    // Modular exponentiation (a^b mod m)
+    static int power(int base, int exponent, int mod) {
+        int result = 1;
+        base = base % mod;
+        while (exponent > 0) {
+            if ((exponent & 1) == 1) // if odd
+                result = (result * base) % mod;
+            exponent = exponent >> 1; // divide by 2
+            base = (base * base) % mod;
+        }
+        return result;
+    }
+
+    static int generatePublicKey(int base, int privateKey, int prime) {
+        return power(base, privateKey, prime);
+    }
+
+    static int calculateSharedSecret(int publicKey, int privateKey, int prime) {
+        return power(publicKey, privateKey, prime);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Input prime number
+        System.out.print("Enter a prime number: ");
+        int prime = scanner.nextInt();
+        if (!isPrime(prime)) {
+            System.out.println("Error: " + prime + " is not a prime number.");
+            return;
+        }
+
+        // Input base
+        System.out.print("Enter a base (must be less than the prime number): ");
+        int base = scanner.nextInt();
+        if (base >= prime || base <= 1) {
+            System.out.println("Error: " + base + " is not a valid base.");
+            return;
+        }
+
+        // Input Alice and Bob's private keys
+        System.out.print("Enter Alice's private key: ");
+        int alicePrivateKey = scanner.nextInt();
+        System.out.print("Enter Bob's private key: ");
+        int bobPrivateKey = scanner.nextInt();
+
+        // Generate public keys
+        int alicePublicKey = generatePublicKey(base, alicePrivateKey, prime);
+        int bobPublicKey = generatePublicKey(base, bobPrivateKey, prime);
+
+        // Output public keys
+        System.out.println("Alice's public key: " + alicePublicKey);
+        System.out.println("Bob's public key: " + bobPublicKey);
+
+        // Compute shared secret keys
+        int aliceSharedSecret = calculateSharedSecret(bobPublicKey, alicePrivateKey, prime);
+        int bobSharedSecret = calculateSharedSecret(alicePublicKey, bobPrivateKey, prime);
+
+        // Output shared secrets
+        System.out.println("Alice's shared secret key: " + aliceSharedSecret);
+        System.out.println("Bob's shared secret key: " + bobSharedSecret);
+
+        // Verify correctness
+        if (aliceSharedSecret == bobSharedSecret) {
+            System.out.println("Success: Shared secrets match!");
+        } else {
+            System.out.println("Error: Shared secrets do not match.");
+        }
+
+        scanner.close();
+    }
+}
